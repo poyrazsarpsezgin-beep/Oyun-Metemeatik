@@ -3,495 +3,469 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Math Night — Korku / Matematik (GitHub Pages)</title>
+<title>Mathmons — Matematik Macerası</title>
 <style>
   :root{
-    --bg:#08060a;
-    --panel:#0f1115;
-    --accent:#e04b4b;
-    --text:#e8e8e8;
-    --muted:#9aa0a6;
+    --bg:#e9f2ff; --panel:#0b1630; --accent:#ffb86b; --text:#062033;
   }
-  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,Arial;background:linear-gradient(180deg,#020203 0%, #081018 60%);color:var(--text)}
-  .container{max-width:980px;margin:18px auto;padding:16px;display:grid;grid-template-columns:1fr 360px;gap:18px;}
-  header{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
-  h1{margin:0;font-size:20px;letter-spacing:0.6px}
-  .game{
-    background:linear-gradient(180deg,#0b0e13,#0a0b0f);border-radius:10px;padding:12px;box-shadow:0 6px 30px rgba(0,0,0,0.7);
-  }
-  .left{
-    display:grid;grid-template-rows: 220px 1fr;gap:12px;
-  }
-  /* Cameras area */
-  .cams{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;height:100%}
-  .cam{
-    background:linear-gradient(180deg,#071019,#09121a);border-radius:8px;padding:8px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.03)
-  }
-  .cam .label{position:absolute;left:8px;top:8px;background:#0006;padding:4px 8px;border-radius:6px;font-size:12px}
-  .cam canvas{width:100%;height:100%;display:block;border-radius:6px}
-  /* right panel */
-  .right{
-    display:flex;flex-direction:column;gap:12px;
-  }
-  .panel{
-    background:var(--panel);padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)
-  }
-  .status-row{display:flex;justify-content:space-between;gap:8px;align-items:center}
-  .meter{height:12px;background:#071018;border-radius:999px;overflow:hidden;flex:1;margin-left:8px}
-  .meter > i{display:block;height:100%;background:linear-gradient(90deg,#7ae582,#3bd67a);width:100%}
-  .controls{display:flex;gap:8px;margin-top:8px}
-  button{background:#0d1115;border:1px solid rgba(255,255,255,0.03);color:var(--text);padding:8px 10px;border-radius:6px;cursor:pointer}
-  button.warn{background:var(--accent);color:white}
-  .log{height:140px;overflow:auto;background:#05060a;padding:8px;border-radius:6px;font-family:monospace;font-size:13px;color:var(--muted)}
-  .big-timer{font-size:32px;font-weight:700;letter-spacing:1px}
-  footer{grid-column:1/-1;margin-top:6px;text-align:center;color:var(--muted);font-size:13px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,#cfe6ff, #e9f7ff);color:var(--text)}
+  header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px}
+  h1{margin:0;font-size:18px}
+  main{display:flex;gap:12px;max-width:1100px;margin:8px auto;padding:12px}
+  /* Canvas area */
+  .game-area{background:#b7e0ff;padding:8px;border-radius:10px;box-shadow:0 6px 20px rgba(2,10,20,0.08)}
+  canvas{display:block;border:4px solid #ffffff;border-radius:8px;background:#9fd8ff}
+  /* Side panel */
+  .panel{width:320px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#f2fbff);box-shadow:0 6px 20px rgba(2,10,20,0.06)}
+  .stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(2,10,20,0.04)}
+  .btn{display:inline-block;padding:8px 10px;border-radius:8px;background:var(--panel);color:#fff;border:none;cursor:pointer;margin:6px 4px}
+  .small{font-size:13px;color:#23456a}
   /* modal */
-  .modal{position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:40}
-  .card{background:#0b0f12;padding:18px;border-radius:10px;width:92%;max-width:520px;border:1px solid rgba(255,255,255,0.04)}
-  .question{font-size:20px;margin-bottom:8px}
-  input[type="text"]{width:100%;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.06);background:#061018;color:var(--text);font-size:16px}
+  #modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,8,20,0.45);z-index:30}
+  .card{background:#fff;padding:16px;border-radius:10px;min-width:280px;box-shadow:0 10px 30px rgba(2,10,20,0.3)}
+  .question{font-size:18px;margin-bottom:8px}
+  input[type="text"]{width:100%;padding:8px;border-radius:8px;border:1px solid #cddff0;font-size:16px}
   .row{display:flex;gap:8px;align-items:center;margin-top:10px}
-  .hint{color:var(--muted);font-size:13px}
-  @media(max-width:900px){
-    .container{grid-template-columns:1fr; padding:8px}
-    .right{order:2}
+  .list{max-height:220px;overflow:auto;padding:6px;border-radius:8px;border:1px solid #e0f0ff;background:#fbffff}
+  footer{text-align:center;color:#6c8aa6;padding:12px}
+  /* mobile controls */
+  .touch-controls{display:none;margin-top:8px;gap:6px}
+  .touch-controls button{padding:10px;border-radius:8px}
+  @media(max-width:920px){
+    main{flex-direction:column;align-items:center;padding:8px}
+    .panel{width:94%}
+    .touch-controls{display:flex}
   }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>Math Night — Matematik Korku (GitHub Pages için)</h1>
-    <div style="text-align:right">
-      <div style="font-size:12px;color:var(--muted)">Geliştirici: ChatGPT • Tek dosya</div>
-    </div>
-  </header>
+<header>
+  <h1>Mathmons — Küçük Dünyada Matematik Macerası</h1>
+  <div style="text-align:right">
+    <div style="font-size:12px;color:#2b4b63">⚡ Klavye: ok tuşları | Dokunmatik: ekranda kontrol</div>
+  </div>
+</header>
 
-  <div class="game left">
-    <div class="cams panel">
-      <div class="cam" data-cam="A">
-        <div class="label">CAM A - Lobby</div>
-        <canvas id="camA"></canvas>
-      </div>
-      <div class="cam" data-cam="B">
-        <div class="label">CAM B - Hall</div>
-        <canvas id="camB"></canvas>
-      </div>
-      <div class="cam" data-cam="C">
-        <div class="label">CAM C - Stage</div>
-        <canvas id="camC"></canvas>
-      </div>
-      <div class="cam" data-cam="D">
-        <div class="label">CAM D - Door</div>
-        <canvas id="camD"></canvas>
-      </div>
+<main>
+  <div class="game-area">
+    <canvas id="world" width="640" height="480"></canvas>
+    <div style="display:flex;justify-content:space-between;margin-top:8px">
+      <div class="small">Pozisyon: <span id="pos">0,0</span></div>
+      <div class="small">Puan: <strong id="score">0</strong></div>
+      <div class="small">Yakalanan: <strong id="caught">0</strong></div>
     </div>
 
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:14px">Gece</div>
-          <div class="big-timer" id="timer">60</div>
-        </div>
-        <div style="text-align:right">
-          <div style="font-size:12px;color:var(--muted)">Animatronik sayısı</div>
-          <div style="font-size:20px;font-weight:700" id="enemies">3</div>
-        </div>
-      </div>
-
-      <div style="margin-top:10px" class="status-row">
-        <div>Enerji</div>
-        <div class="meter" style="flex:1">
-          <i id="energyBar" style="width:100%"></i>
-        </div>
-        <div id="energyPercent" style="min-width:40px;text-align:right">100%</div>
-      </div>
-
-      <div class="controls">
-        <button id="toggleCam">Kamera Aç/Kapa</button>
-        <button id="closeLeft">Sol Kapı Kapat</button>
-        <button id="closeRight">Sağ Kapı Kapat</button>
-        <button id="startBtn" class="warn">Başla</button>
-      </div>
-      <div style="margin-top:8px;font-size:13px;color:var(--muted)">Kamera açıkken animatroniklerin hareketi yavaşlar. Onları durdurmak için soruları cevapla.</div>
+    <div class="touch-controls" style="justify-content:center">
+      <button id="up">↑</button>
+    </div>
+    <div class="touch-controls" style="justify-content:space-between">
+      <button id="left">←</button>
+      <button id="down">↓</button>
+      <button id="right">→</button>
     </div>
   </div>
 
-  <aside class="right">
-    <div class="panel">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="font-size:13px;color:var(--muted)">Kamera Durumu</div>
-          <div id="camState">Kapalı</div>
-        </div>
-        <div>
-          <div style="font-size:13px;color:var(--muted)">Kapılar</div>
-          <div id="doors">Açık / Açık</div>
-        </div>
-      </div>
-      <div style="margin-top:8px">
-        <div style="font-size:13px;color:var(--muted)">Günlük Kayıt</div>
-        <div class="log" id="log"></div>
-      </div>
+  <aside class="panel">
+    <div class="stat"><div>Seviye</div><div id="level">1</div></div>
+    <div class="stat"><div>Kalan İşlem Kutusu</div><div id="boxes">—</div></div>
+    <div style="margin-top:8px">
+      <div style="font-weight:600">Envanter / Yakalanan Mathmons</div>
+      <div class="list" id="inventory"></div>
     </div>
 
-    <div class="panel" style="text-align:center">
-      <div style="font-size:14px;color:var(--muted)">Hızlı Açıklama</div>
-      <ul style="text-align:left;margin:8px 0;padding-left:18px;color:var(--muted);font-size:13px">
-        <li>Kamera açmak: hafif enerji tüketir, hareketi yavaşlatır.</li>
-        <li>Kapı kapamak: enerji çok tüketir ama animatronikleri engeller.</li>
-        <li>Animatronik sana yaklaşıp kapıyı aşarsa oyun biter.</li>
-        <li>Animatronik durdurmak için çıkan matematik sorusunu hızlıca doğru cevapla.</li>
-      </ul>
-      <div style="font-size:12px;color:var(--muted)">İyi şanslar...</div>
+    <div style="margin-top:10px">
+      <button class="btn" id="newGame">Yeni Oyun</button>
+      <button class="btn" id="spawn">Rastgele Kutular Ekle</button>
+    </div>
+
+    <div style="margin-top:12px">
+      <div style="font-weight:600;margin-bottom:6px">Nasıl oynanır?</div>
+      <div class="small">• Haritada yürüyüp işlem kutularını ve Mathmon'ları bul. <br>• Kutulara çarpınca soruyu çöz — doğruysa puan kazanırsın. <br>• Mathmon ile karşılaşınca onu yakalamak için soru çöz. Doğruysa Mathmon envantere eklenir.</div>
     </div>
   </aside>
+</main>
 
-  <footer>
-    Bu oyun tek HTML dosyasıdır — GitHub Pages'e koyup hemen oynayabilirsin.
-  </footer>
-</div>
-
-<!-- Modal soru -->
-<div id="modal" class="modal" style="display:none">
+<div id="modal">
   <div class="card">
-    <div class="question" id="qText">Soru buraya</div>
-    <input id="qInput" type="text" autocomplete="off" placeholder="Cevabını yaz ve Enter'a bas" />
+    <div class="question" id="qtext">Soru buraya</div>
+    <input id="qinput" type="text" placeholder="Cevabını yaz..." />
     <div class="row">
-      <div class="hint" id="qHint">Kalan süre: <span id="qTime">10</span>s</div>
-      <div style="flex:1"></div>
-      <button id="submitAns" class="warn">Gönder</button>
+      <button class="btn" id="qsubmit">Gönder</button>
+      <button class="btn" id="qskip">Vazgeç</button>
+      <div style="flex:1;text-align:right;color:#567fa3">Kalan süre: <span id="qtime">12</span>s</div>
     </div>
   </div>
 </div>
 
+<footer>Bu oyun tek dosya olarak tasarlandı — GitHub Pages'e koyup oynayabilirsin.</footer>
+
 <script>
-/*
-  Math Night — Basit FNAF-benzeri oyun
-  Tek dosya — GitHub Pages ile uyumlu
-*/
+/* ---------- Oyun Konfig ---------- */
+const TILE_W = 64, TILE_H = 64;
+const MAP_COLS = 10, MAP_ROWS = 7;         // 10x7 grid (dürüstçe küçük dünya)
+const CANVAS_W = TILE_W * MAP_COLS;       // 640
+const CANVAS_H = TILE_H * MAP_ROWS;       // 448
+const INITIAL_BOXES = 8;
+const INITIAL_MATHMONS = 3;
+const QUESTION_TIME = 12; // saniye
 
-/* --- Oyun ayarları --- */
-const NIGHT_SECONDS = 60;           // gece süresi kazanmak için
-const INITIAL_ENERGY = 100;         // başlangıç enerji %
-const ENERGY_CAMERA_PER_SEC = 0.6;  // kamera açıkken saniye başına enerji kaybı
-const ENERGY_DOOR_PER_SEC = 2.4;    // kapı kapalıysa saniye başına enerji kaybı
-const ANIM_COUNT = 3;               // animatronik sayısı
-const QUESTION_TIME = 12;           // soru için verilecek saniye
+/* ---------- Oyun Durumu ---------- */
+const canvas = document.getElementById('world');
+canvas.width = CANVAS_W;
+canvas.height = CANVAS_H;
+const ctx = canvas.getContext('2d');
 
-/* --- Oyun durumları --- */
 let state = {
-  running: false,
-  timeLeft: NIGHT_SECONDS,
-  energy: INITIAL_ENERGY,
-  cameraOn: false,
-  doorLeft: false,
-  doorRight: false,
-  enemies: [],
-  tickInterval: null,
-  Q: null,
+  player: {x: Math.floor(MAP_COLS/2), y: Math.floor(MAP_ROWS/2)},
+  boxes: [],    // işlem kutuları {x,y,type}
+  mathmons: [], // mathmonlar {x,y,name,level}
+  score: 0,
+  level: 1,
+  inventory: [],
+  runningQuestion: null,
+  questionTimerId: null
 };
 
-/* --- UI elemanları --- */
-const timerEl = document.getElementById('timer');
-const energyBar = document.getElementById('energyBar');
-const energyPercent = document.getElementById('energyPercent');
-const camState = document.getElementById('camState');
-const doorsEl = document.getElementById('doors');
-const logEl = document.getElementById('log');
-const enemiesCount = document.getElementById('enemies');
-const startBtn = document.getElementById('startBtn');
-const toggleCamBtn = document.getElementById('toggleCam');
-const closeLeftBtn = document.getElementById('closeLeft');
-const closeRightBtn = document.getElementById('closeRight');
+/* ---------- UI refs ---------- */
+const posEl = document.getElementById('pos');
+const scoreEl = document.getElementById('score');
+const boxesEl = document.getElementById('boxes');
+const invEl = document.getElementById('inventory');
+const lvlEl = document.getElementById('level');
+const caughtEl = document.getElementById('caught');
 
 const modal = document.getElementById('modal');
-const qText = document.getElementById('qText');
-const qInput = document.getElementById('qInput');
-const qTime = document.getElementById('qTime');
-const submitAns = document.getElementById('submitAns');
+const qtext = document.getElementById('qtext');
+const qinput = document.getElementById('qinput');
+const qtime = document.getElementById('qtime');
+const qsubmit = document.getElementById('qsubmit');
+const qskip = document.getElementById('qskip');
 
-/* Canvaslar */
-const cams = {
-  A: document.getElementById('camA'),
-  B: document.getElementById('camB'),
-  C: document.getElementById('camC'),
-  D: document.getElementById('camD'),
-};
-Object.values(cams).forEach(c=>{ c.width = 600; c.height=360; });
+/* ---------- Yardımcı Fonksiyonlar ---------- */
+function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function tileToPx(tx,ty){ return {px: tx * TILE_W, py: ty * TILE_H}; }
+function samePos(a,b){ return a.x===b.x && a.y===b.y; }
 
-/* --- Yardımcılar --- */
-function log(msg){
-  const t = new Date().toLocaleTimeString();
-  logEl.innerHTML = `[${t}] ${msg}\n` + logEl.innerHTML;
-}
-function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
-function rand(min,max){ return Math.random()*(max-min)+min; }
-
-/* --- Animatronik model --- */
-function createEnemies(n){
-  const arr = [];
-  for(let i=0;i<n;i++){
-    arr.push({
-      id: i,
-      name: ["Bunny","Wolf","Crow"][i%3]+"#"+(i+1),
-      // position 0 (stage) ... 1 (at door)
-      pos: Math.random()*0.25,
-      speed: 0.004 + Math.random()*0.007,
-      active: true,
-      pausedUntil: 0
-    });
+/* ---------- Harita / Spawn ---------- */
+function spawnBoxes(n=INITIAL_BOXES){
+  // türler: + - * /
+  const types = ['+','-','×','÷'];
+  let attempts = 0;
+  while(n>0 && attempts<500){
+    attempts++;
+    const x = randInt(0,MAP_COLS-1), y = randInt(0,MAP_ROWS-1);
+    // boş hücre ve oyuncudan farklı
+    if(x===state.player.x && y===state.player.y) continue;
+    if(state.boxes.find(b=>b.x===x && b.y===y)) continue;
+    if(state.mathmons.find(m=>m.x===x && m.y===y)) continue;
+    const type = types[randInt(0,types.length-1)];
+    state.boxes.push({x,y,type});
+    n--;
   }
-  return arr;
-}
-
-/* --- Soru üretici --- */
-function generateQuestion(difficulty=1){
-  // difficulty ile sayı aralığını büyüt
-  const max = 5 + difficulty*8;
-  const a = Math.floor(rand(1,max));
-  const b = Math.floor(rand(1,max));
-  const op = Math.random() < 0.5 ? '+' : '*';
-  const text = `${a} ${op} ${b} = ?`;
-  const answer = op === '+' ? a+b : a*b;
-  return {text,answer};
-}
-
-/* --- Oyun başlangıcı --- */
-function startGame(){
-  if(state.running) return;
-  state.running = true;
-  state.timeLeft = NIGHT_SECONDS;
-  state.energy = INITIAL_ENERGY;
-  state.cameraOn = false;
-  state.doorLeft = false;
-  state.doorRight = false;
-  state.enemies = createEnemies(ANIM_COUNT);
-  enemiesCount.innerText = state.enemies.length;
-  startBtn.innerText = "Yeniden Başlat";
-  log("Gece başladı. Hazır ol.");
   updateUI();
-  drawAll();
-  // ana tick: 200ms
-  state.tickInterval = setInterval(tick, 200);
 }
 
-/* --- Oyun bittikten sonra temizle --- */
-function endGame(win,reason){
-  clearInterval(state.tickInterval);
-  state.running = false;
-  modal.style.display = 'none';
-  const msg = win ? `GECEYİ KAZANDIN! (${reason})` : `OYUN BİTTİ — ${reason}`;
-  log(msg);
-  alert(msg + "\nSayfayı yenileyip tekrar oynayabilirsin.");
-}
-
-/* --- Her tick --- */
-let lastTick = Date.now();
-function tick(){
-  const now = Date.now();
-  const dt = (now - lastTick)/1000; lastTick = now;
-
-  // zaman
-  state.timeLeft -= dt;
-  if(state.timeLeft <= 0){
-    endGame(true,"Sabah oldu");
-    updateUI();
-    return;
+function spawnMathmons(n=INITIAL_MATHMONS){
+  const names = ['Addrex','Subbi','Multo','Divi','Numble','Fracto'];
+  let attempts = 0;
+  while(n>0 && attempts<500){
+    attempts++;
+    const x = randInt(0,MAP_COLS-1), y = randInt(0,MAP_ROWS-1);
+    if(x===state.player.x && y===state.player.y) continue;
+    if(state.boxes.find(b=>b.x===x && b.y===y)) continue;
+    if(state.mathmons.find(m=>m.x===x && m.y===y)) continue;
+    const name = names[randInt(0,names.length-1)];
+    const level = Math.max(1, state.level + randInt(-1,1));
+    state.mathmons.push({x,y,name,level});
+    n--;
   }
-
-  // enerji yönetimi
-  if(state.cameraOn) state.energy -= ENERGY_CAMERA_PER_SEC * dt;
-  if(state.doorLeft) state.energy -= ENERGY_DOOR_PER_SEC * dt;
-  if(state.doorRight) state.energy -= ENERGY_DOOR_PER_SEC * dt;
-  state.energy = clamp(state.energy,0,100);
-  if(state.energy <= 0){
-    // enerji bitti => hayatta kalamazsın
-    endGame(false,"Enerji bitti");
-    return;
-  }
-
-  // animatronikler hareketi
-  for(const e of state.enemies){
-    if(!e.active) continue;
-    // e.pausedUntil ile soru sonrası duraklama
-    if(now < e.pausedUntil) continue;
-    // kamera açıksa hareket yavaşlar
-    const cameraMultiplier = state.cameraOn ? 0.25 : 1;
-    // kapı kapalıysa o kapıda bulunan animatronik geri durur
-    const atLeftDoor = e.pos > 0.8 && !state.doorLeft ? true : false;
-    // ilerleme
-    e.pos += e.speed * cameraMultiplier * dt;
-    // rastgele artış
-    if(Math.random() < 0.01) e.pos += e.speed*1.4*dt;
-    // clamp
-    e.pos = clamp(e.pos, 0, 1.05);
-
-    // eğer kapıya ulaşırsa soru sorma veya saldırı
-    if(e.pos >= 1.0){
-      // eğer kapı kapalıysa geri it
-      if(state.doorLeft || state.doorRight){
-        // Kapı hangi tarafta? basitçe yarıya göre
-        if(e.pos >= 1.0 && e.pos < 1.05){
-          // soru sor — matematikle geri gönder
-          askQuestion(e);
-        }
-      } else {
-        // kapı kapalı değilse saldırı => oyun bitti
-        endGame(false, `${e.name} kapıyı aştı!`);
-        return;
-      }
-    }
-  }
-
-  // update UI ve çizim
   updateUI();
-  drawAll();
 }
 
-/* --- Soru gösterimi --- */
-function askQuestion(enemy){
-  if(state.Q) return; // zaten açık soru varsa yeni sormuyoruz
-  const difficulty = 1 + Math.floor(enemy.pos*4);
-  const q = generateQuestion(difficulty);
-  state.Q = {enemy, q, timeLeft: QUESTION_TIME, started: Date.now()};
-  qText.innerText = `Animatronik ${enemy.name} yaklaştı! Soruyu çöz:\n${q.text}`;
-  qInput.value = '';
-  qTime.innerText = Math.ceil(state.Q.timeLeft);
-  modal.style.display = 'flex';
-  qInput.focus();
-  log(`${enemy.name} için soru: ${q.text}`);
-
-  // soru zamanlayıcı
-  const qtick = setInterval(()=>{
-    if(!state.Q){ clearInterval(qtick); return; }
-    state.Q.timeLeft -= 0.5;
-    qTime.innerText = Math.ceil(state.Q.timeLeft);
-    if(state.Q.timeLeft <= 0){
-      clearInterval(qtick);
-      // yanlış say => saldırı
-      modal.style.display = 'none';
-      state.Q = null;
-      endGame(false, `${enemy.name} soruya cevap verilmedi, saldırdı.`);
-    }
-  },500);
-}
-
-/* --- cevap kontrol --- */
-function submitAnswer(){
-  if(!state.Q) return;
-  const given = qInput.value.trim();
-  if(given === '') return;
-  const correct = String(state.Q.q.answer);
-  const enemy = state.Q.enemy;
-  if(given === correct){
-    // başarılı: animatronik geri gider (pos azalt)
-    enemy.pos = Math.max(0, enemy.pos - 0.45);
-    enemy.pausedUntil = Date.now() + 4000; // 4s duraksama
-    modal.style.display = 'none';
-    log(`${enemy.name} soruyu yanlışsız çözüldü — geri çekildi.`);
-    state.Q = null;
+/* ---------- Soru Üretici ---------- */
+function generateQuestionForType(type, difficulty=1){
+  // difficulty ile sayı büyür
+  const max = 5 + difficulty*6;
+  let a = randInt(1, max);
+  let b = randInt(1, max);
+  let question = '', answer = null;
+  if(type === '+'){ question = `${a} + ${b} = ?`; answer = a + b; }
+  else if(type === '-'){
+    if(a < b) [a,b]=[b,a];
+    question = `${a} - ${b} = ?`; answer = a - b;
+  } else if(type === '×'){
+    question = `${a} × ${b} = ?`; answer = a * b;
+  } else if(type === '÷'){
+    // bölme için tam bölünebilir yap
+    answer = randInt(1, Math.max(1, Math.floor(max/2)));
+    b = randInt(1, Math.max(1, Math.floor(max/2)));
+    a = answer * b;
+    question = `${a} ÷ ${b} = ?`;
   } else {
-    modal.style.display = 'none';
-    state.Q = null;
-    endGame(false, `${enemy.name} soruya yanlış cevap verildi.`);
+    // Mathmon karşılaşma rastgele işlem
+    const ops = ['+','-','×','÷'];
+    const t = ops[randInt(0,ops.length-1)];
+    return generateQuestionForType(t,difficulty);
+  }
+  return {question,answer};
+}
+
+function generateQuestionForMathmon(mathmon){
+  // mathmon level etkiler
+  const diff = Math.max(1, mathmon.level);
+  // rastgele operation (bonus olarak mix)
+  const ops = ['+','-','×','÷'];
+  const type = ops[randInt(0,ops.length-1)];
+  const q = generateQuestionForType(type, diff);
+  // attach metadata
+  q.meta = {type,mathmon};
+  return q;
+}
+
+/* ---------- Soru Modal İşlemleri ---------- */
+function openQuestionModal(q, onCorrect, onFail){
+  state.runningQuestion = {q,onCorrect,onFail,remaining: QUESTION_TIME};
+  qtext.innerText = q.question;
+  qinput.value = '';
+  qtime.innerText = state.runningQuestion.remaining;
+  modal.style.display = 'flex';
+  qinput.focus();
+
+  // timer
+  if(state.questionTimerId) clearInterval(state.questionTimerId);
+  state.questionTimerId = setInterval(()=>{
+    state.runningQuestion.remaining -= 1;
+    qtime.innerText = state.runningQuestion.remaining;
+    if(state.runningQuestion.remaining <= 0){
+      clearInterval(state.questionTimerId);
+      closeQuestionModal();
+      if(onFail) onFail();
+    }
+  },1000);
+}
+
+function closeQuestionModal(){
+  modal.style.display = 'none';
+  if(state.questionTimerId){ clearInterval(state.questionTimerId); state.questionTimerId = null; }
+  state.runningQuestion = null;
+}
+
+/* ---------- Etkileşim: Kutular ve Mathmonlar ---------- */
+function handleStep(){
+  // oyuncu bir kutu ile aynı hücreye geldi mi?
+  const p = state.player;
+  const box = state.boxes.find(b=>b.x===p.x && b.y===p.y);
+  if(box){
+    // soru üret
+    const q = generateQuestionForType(box.type, state.level);
+    openQuestionModal(q, ()=>{
+      // doğruysa puan ve kutuyu al
+      state.score += 10 * state.level;
+      // kutuyu sil
+      const idx = state.boxes.indexOf(box);
+      if(idx>=0) state.boxes.splice(idx,1);
+      updateUI();
+    }, ()=>{
+      // yanlış: puan kaybı
+      state.score = Math.max(0, state.score - 5);
+      updateUI();
+    });
+    return;
+  }
+  // mathmon var mı?
+  const mm = state.mathmons.find(m=>m.x===p.x && m.y===p.y);
+  if(mm){
+    const q = generateQuestionForMathmon(mm);
+    openQuestionModal(q, ()=>{
+      // doğru -> yakala
+      state.inventory.push({name:mm.name,level:mm.level});
+      state.score += 30 * mm.level;
+      // mathmonu sil
+      const idx = state.mathmons.indexOf(mm);
+      if(idx>=0) state.mathmons.splice(idx,1);
+      updateUI();
+    }, ()=>{
+      // yanlış -> mathmon kaçıyor (rastgele başka yere taşınsın)
+      mm.x = randInt(0,MAP_COLS-1);
+      mm.y = randInt(0,MAP_ROWS-1);
+      updateUI();
+    });
+    return;
   }
 }
 
-/* --- UI güncelle --- */
+/* ---------- Kontrol ve Input ---------- */
+const keys = {};
+window.addEventListener('keydown', e=>{
+  if(e.key.startsWith('Arrow')){ e.preventDefault(); }
+  keys[e.key] = true;
+  // modal açıkken Enter ile gönder
+  if(modal.style.display === 'flex' && e.key === 'Enter'){ qsubmit.click(); }
+});
+window.addEventListener('keyup', e=>{ keys[e.key] = false; });
+
+document.getElementById('up').addEventListener('click', ()=>movePlayer(0,-1));
+document.getElementById('left').addEventListener('click', ()=>movePlayer(-1,0));
+document.getElementById('down').addEventListener('click', ()=>movePlayer(0,1));
+document.getElementById('right').addEventListener('click', ()=>movePlayer(1,0));
+
+function movePlayer(dx,dy){
+  if(state.runningQuestion) return; // soru açıkken hareket yok
+  const nx = clamp(state.player.x + dx, 0, MAP_COLS-1);
+  const ny = clamp(state.player.y + dy, 0, MAP_ROWS-1);
+  state.player.x = nx; state.player.y = ny;
+  updateUI();
+  handleStep();
+  draw();
+}
+
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+
+/* allow arrow keys as movement with small cooldown */
+let lastMove = 0;
+function processKeyboard(){
+  const now = Date.now();
+  if(now - lastMove < 140) return;
+  if(keys['ArrowUp'] || keys['w']){ movePlayer(0,-1); lastMove = now; }
+  else if(keys['ArrowDown'] || keys['s']){ movePlayer(0,1); lastMove = now; }
+  else if(keys['ArrowLeft'] || keys['a']){ movePlayer(-1,0); lastMove = now; }
+  else if(keys['ArrowRight'] || keys['d']){ movePlayer(1,0); lastMove = now; }
+}
+
+/* ---------- UI Güncelle ---------- */
 function updateUI(){
-  timerEl.innerText = Math.ceil(state.timeLeft);
-  energyBar.style.width = `${state.energy}%`;
-  energyPercent.innerText = `${Math.ceil(state.energy)}%`;
-  camState.innerText = state.cameraOn ? "Açık" : "Kapalı";
-  doorsEl.innerText = `${state.doorLeft ? 'Kapalı' : 'Açık'} / ${state.doorRight ? 'Kapalı' : 'Açık'}`;
-  enemiesCount.innerText = state.enemies.length;
+  posEl.innerText = `${state.player.x}, ${state.player.y}`;
+  scoreEl.innerText = state.score;
+  boxesEl.innerText = state.boxes.length;
+  lvlEl.innerText = state.level;
+  invEl.innerHTML = state.inventory.length ? state.inventory.map(m=>`${m.name} (Lv${m.level})`).join('<br>') : '<i>Boş</i>';
+  caughtEl.innerText = state.inventory.length;
 }
 
-/* --- Basit çizim: kameralar ve animatronikler --- */
-function drawAll(){
-  // her kamera farklı açı gösterir, ama basit olacak
-  drawCam(cams.A.getContext('2d'), 'A', 0);
-  drawCam(cams.B.getContext('2d'), 'B', 1);
-  drawCam(cams.C.getContext('2d'), 'C', 2);
-  drawCam(cams.D.getContext('2d'), 'D', 3);
+/* ---------- Çizim ---------- */
+function drawGrid(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // zemin
+  ctx.fillStyle = '#cfeeff';
+  ctx.fillRect(0,0,canvas.width,canvas.height);
+  // grid çizgileri
+  ctx.strokeStyle = 'rgba(0,0,0,0.06)';
+  for(let c=0;c<=MAP_COLS;c++){
+    ctx.beginPath(); ctx.moveTo(c*TILE_W,0); ctx.lineTo(c*TILE_W,canvas.height); ctx.stroke();
+  }
+  for(let r=0;r<=MAP_ROWS;r++){
+    ctx.beginPath(); ctx.moveTo(0,r*TILE_H); ctx.lineTo(canvas.width,r*TILE_H); ctx.stroke();
+  }
 }
 
-function drawCam(ctx, id, camIndex){
-  const w = ctx.canvas.width; const h = ctx.canvas.height;
-  ctx.clearRect(0,0,w,h);
-  // grain & vignette
-  ctx.fillStyle = '#061018';
-  ctx.fillRect(0,0,w,h);
-  // draw stage/floor
-  ctx.fillStyle = '#07121a';
-  ctx.fillRect(0,h*0.6,w,h*0.4);
-  // draw animatronikler small depending on camIndex: show subset
-  const visible = state.enemies.filter((e,idx)=> (idx%4) === camIndex || camIndex===3);
-  visible.forEach((e,idx)=>{
-    // position horizontally by e.id
-    const x = (w*0.15) + (e.id*(w*0.25)) + Math.sin(Date.now()/400 + e.id)*8;
-    const y = h*0.5 + e.pos*h*0.4;
+function draw(){
+  drawGrid();
+  // kutuları çiz
+  for(const b of state.boxes){
+    const {px,py} = tileToPx(b.x,b.y);
+    ctx.fillStyle = '#fff9c4';
+    ctx.fillRect(px+8,py+8,TILE_W-16,TILE_H-16);
+    ctx.fillStyle = '#223344';
+    ctx.font = '28px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline='middle';
+    ctx.fillText(b.type, px + TILE_W/2, py + TILE_H/2);
+  }
+  // mathmons (yuvarlak sevimli)
+  for(const m of state.mathmons){
+    const {px,py} = tileToPx(m.x,m.y);
     // body
-    const size = 36 + e.pos*40;
-    const red = Math.floor(120 + e.id*40);
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(${red},${40},${40},0.95)`;
-    ctx.arc(x,y,size*0.6,0,Math.PI*2);
-    ctx.fill();
-    // eyes (glow more when near)
-    const eyeGlow = Math.min(1, e.pos*2);
-    ctx.beginPath();
-    ctx.fillStyle = `rgba(255,${150*Math.max(0,1-eyeGlow)},${50},${0.7+eyeGlow*0.3})`;
-    ctx.arc(x - size*0.2, y - size*0.1, 6 + eyeGlow*6, 0, Math.PI*2);
-    ctx.arc(x + size*0.2, y - size*0.1, 6 + eyeGlow*6, 0, Math.PI*2);
-    ctx.fill();
-  });
-  // overlay (scan lines)
-  ctx.fillStyle = 'rgba(0,0,0,0.12)';
-  for(let i=0;i<h;i+=6){ ctx.fillRect(0,i,w,1); }
-  // timestamp
-  ctx.fillStyle = 'rgba(180,200,220,0.8)';
-  ctx.font = '14px monospace';
-  ctx.fillText(new Date().toLocaleTimeString(), 10, 20);
+    ctx.fillStyle = '#ffd1dc';
+    ctx.beginPath(); ctx.ellipse(px+TILE_W/2, py+TILE_H/2, 20, 20,0,0,Math.PI*2); ctx.fill();
+    // eyes
+    ctx.fillStyle = '#222'; ctx.beginPath(); ctx.arc(px+TILE_W/2-6,py+TILE_H/2-4,3,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(px+TILE_W/2+6,py+TILE_H/2-4,3,0,Math.PI*2); ctx.fill();
+    // name
+    ctx.fillStyle = '#123'; ctx.font='12px sans-serif'; ctx.textAlign='center';
+    ctx.fillText(`${m.name} (Lv${m.level})`, px+TILE_W/2, py+TILE_H-6);
+  }
+  // player (küçük kare)
+  const pp = tileToPx(state.player.x, state.player.y);
+  ctx.fillStyle = '#4a90e2';
+  ctx.fillRect(pp.px+12, pp.py+12, TILE_W-24, TILE_H-24);
+  ctx.fillStyle = '#fff'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('YOU', pp.px+TILE_W/2, pp.py+TILE_H/2);
 }
 
-/* --- Kontroller --- */
-toggleCamBtn.addEventListener('click', ()=>{
-  if(!state.running) return log("Önce başlat.");
-  state.cameraOn = !state.cameraOn;
-  log(`Kamera ${state.cameraOn ? 'Açıldı' : 'Kapatıldı'}.`);
+/* ---------- Oyun Döngüsü ---------- */
+function gameLoop(){
+  processKeyboard();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+/* ---------- Butonlar ve Etkinlikler ---------- */
+document.getElementById('newGame').addEventListener('click', ()=>{
+  state.player = {x: Math.floor(MAP_COLS/2), y: Math.floor(MAP_ROWS/2)};
+  state.boxes = [];
+  state.mathmons = [];
+  state.inventory = [];
+  state.score = 0;
+  state.level = 1;
+  spawnBoxes(INITIAL_BOXES);
+  spawnMathmons(INITIAL_MATHMONS);
   updateUI();
+  draw();
+});
+document.getElementById('spawn').addEventListener('click', ()=>{ spawnBoxes(4); spawnMathmons(1); });
+
+qsubmit.addEventListener('click', ()=>{
+  if(!state.runningQuestion) return;
+  const given = qinput.value.trim();
+  if(given==='') return;
+  const correct = String(state.runningQuestion.q.answer);
+  if(given === correct){
+    // doğru
+    const cb = state.runningQuestion.onCorrect;
+    closeQuestionModal();
+    if(cb) cb();
+  } else {
+    // yanlış
+    const cb = state.runningQuestion.onFail;
+    closeQuestionModal();
+    if(cb) cb();
+  }
 });
 
-closeLeftBtn.addEventListener('click', ()=>{
-  if(!state.running) return log("Önce başlat.");
-  // toggle
-  state.doorLeft = !state.doorLeft;
-  log(`Sol kapı ${state.doorLeft ? 'kapatıldı' : 'açıldı'}.`);
-  updateUI();
+qskip.addEventListener('click', ()=>{
+  if(!state.runningQuestion) return;
+  const cb = state.runningQuestion.onFail;
+  closeQuestionModal();
+  if(cb) cb();
 });
 
-closeRightBtn.addEventListener('click', ()=>{
-  if(!state.running) return log("Önce başlat.");
-  state.doorRight = !state.doorRight;
-  log(`Sağ kapı ${state.doorRight ? 'kapatıldı' : 'açıldı'}.`);
-  updateUI();
+/* ---------- Başlangıç ---------- */
+spawnBoxes(INITIAL_BOXES);
+spawnMathmons(INITIAL_MATHMONS);
+updateUI();
+draw();
+requestAnimationFrame(gameLoop);
+
+/* ---------- Küçük yardımcı: fare ile hücre tıklama hareketi ---------- */
+canvas.addEventListener('click', e=>{
+  // tıklanan hücreye gitmek yerine direkt move (öğretici amaçlı)
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const tx = Math.floor(mx / TILE_W), ty = Math.floor(my / TILE_H);
+  // doğruysa hareket et
+  // hesapla dx,dy tek adım olacak şekilde
+  const dx = Math.sign(tx - state.player.x);
+  const dy = Math.sign(ty - state.player.y);
+  if(dx !== 0) movePlayer(dx,0); else if(dy !== 0) movePlayer(0,dy);
 });
 
-startBtn.addEventListener('click', ()=> startGame());
-
-submitAns.addEventListener('click', submitAnswer);
-qInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') submitAnswer(); });
-
-// prevent focus escape so mobile works nicely
-modal.addEventListener('click', (e)=>{ if(e.target === modal){} });
-
-/* --- Başlangıç çizimi --- */
-drawAll();
-log("Sayfaya hoş geldin. 'Başla' düğmesine bas ve geceyi geçir.");
-
-/* --- Not: Eğer oyun çok kolay/çok zor gelirse oynanış değerlerini yukarıda değiştir --- */
+/* ---------- İpuçları / geliştirilebilir notlar ---------- */
+/*
+  - İstersen mathmonlara özel sorular, daha erken seviye/evrim mekanikleri ekleyebilirim.
+  - Görsel iyileştirmesi, ses efektleri, seviye geçişleri istersen eklerim.
+  - Bu dosyayı GitHub Pages'e koyup paylaşmak istersen yardım edeyim.
+*/
 </script>
 </body>
 </html>
