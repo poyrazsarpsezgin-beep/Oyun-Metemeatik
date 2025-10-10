@@ -2,645 +2,696 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pokemon Matematik Macerası</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pixel Matematik Macerası</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            min-height: 100vh;
+            font-family: 'Courier New', monospace;
+            background-color: #8bac0f;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: white;
+            min-height: 100vh;
             overflow: hidden;
+            padding: 10px;
         }
         
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 640px;
+            height: 70vh;
+            min-height: 400px;
+            max-height: 480px;
+            border: 4px solid #306230;
+            background-color: #9bbc0f;
+            margin: 0 auto;
+        }
+        
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
         }
         
         .screen {
-            background-color: rgba(0, 0, 0, 0.7);
-            border-radius: 20px;
-            padding: 30px;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #8bac0f;
+            color: #0f380f;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            display: none;
-        }
-        
-        #start-screen {
-            display: block;
+            padding: 20px;
+            z-index: 100;
         }
         
         h1 {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            text-shadow: 0 0 10px #ffcc00;
-            color: #ffcc00;
+            font-size: clamp(20px, 6vw, 32px);
+            margin-bottom: 15px;
+            color: #0f380f;
+            text-shadow: 2px 2px 0 #306230;
         }
         
         h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #4fc3f7;
+            font-size: clamp(16px, 4vw, 24px);
+            margin-bottom: 10px;
+            color: #0f380f;
         }
         
         p {
-            font-size: 1.2rem;
-            margin-bottom: 20px;
-            line-height: 1.6;
+            font-size: clamp(12px, 3vw, 16px);
+            margin-bottom: 10px;
+            line-height: 1.4;
         }
         
-        .pokemon {
-            width: 150px;
-            height: 150px;
-            margin: 20px auto;
-            background-color: #ffcc00;
-            border-radius: 50%;
-            position: relative;
-            animation: bounce 2s infinite;
-        }
-        
-        .pokemon::before {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-color: white;
-            border-radius: 50%;
-            top: 30px;
-            left: 20px;
-        }
-        
-        .pokemon::after {
-            content: '';
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-color: white;
-            border-radius: 50%;
-            top: 30px;
-            right: 20px;
-        }
-        
-        .pokemon .eye {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: black;
-            border-radius: 50%;
-            top: 45px;
-            left: 35px;
-        }
-        
-        .pokemon .eye:nth-child(2) {
-            left: auto;
-            right: 35px;
-        }
-        
-        .pokemon .mouth {
-            position: absolute;
-            width: 60px;
-            height: 20px;
-            background-color: #e64a19;
-            border-radius: 0 0 30px 30px;
-            bottom: 40px;
-            left: 45px;
-        }
-        
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-        
-        button {
-            background: linear-gradient(to right, #ff416c, #ff4b2b);
-            color: white;
+        .button {
+            background-color: #306230;
+            color: #9bbc0f;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-            border-radius: 50px;
+            padding: 12px 24px;
+            font-size: clamp(14px, 4vw, 18px);
+            font-family: 'Courier New', monospace;
+            margin-top: 15px;
             cursor: pointer;
-            margin: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border: 2px solid #0f380f;
+            border-radius: 4px;
+            min-width: 120px;
         }
         
-        button:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        .button:hover, .button:active {
+            background-color: #0f380f;
         }
         
-        .game-area {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            width: 100%;
-        }
-        
-        .world-map {
-            flex: 1;
-            min-width: 300px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 15px;
-            padding: 20px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            grid-template-rows: repeat(5, 1fr);
-            gap: 10px;
-            height: 400px;
-        }
-        
-        .map-cell {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .map-cell:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: scale(1.05);
-        }
-        
-        .map-cell.active {
-            background-color: rgba(255, 215, 0, 0.3);
-            box-shadow: 0 0 15px gold;
-        }
-        
-        .map-cell.completed {
-            background-color: rgba(76, 175, 80, 0.3);
-        }
-        
-        .map-cell .pokeball {
-            width: 30px;
-            height: 30px;
-            background: linear-gradient(to bottom, #ff0000 50%, white 50%);
-            border-radius: 50%;
-            position: relative;
-        }
-        
-        .map-cell .pokeball::before {
-            content: '';
+        #dialogue-box {
             position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: white;
-            border: 2px solid black;
-            border-radius: 50%;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background-color: #e0f8d0;
+            border: 2px solid #0f380f;
+            padding: 15px;
+            display: none;
+            z-index: 50;
+            border-radius: 4px;
+        }
+        
+        #math-problem {
+            position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            background-color: #e0f8d0;
+            border: 2px solid #0f380f;
+            padding: 20px;
+            display: none;
+            text-align: center;
+            width: 90%;
+            max-width: 300px;
+            z-index: 60;
+            border-radius: 4px;
         }
         
-        .player {
-            width: 30px;
-            height: 30px;
-            background-color: #4fc3f7;
-            border-radius: 50%;
+        #math-problem input {
+            width: 100px;
+            padding: 8px;
+            margin: 10px 0;
+            font-size: 16px;
+            text-align: center;
+            border: 1px solid #0f380f;
+            border-radius: 4px;
+        }
+        
+        #controls {
             position: absolute;
-            transition: all 0.5s ease;
+            bottom: 10px;
+            right: 10px;
+            display: grid;
+            grid-template-areas:
+                ". up ."
+                "left . right"
+                ". down .";
+            gap: 5px;
+            z-index: 40;
+        }
+        
+        .control-btn {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(48, 98, 48, 0.7);
+            border: 2px solid #0f380f;
+            color: #9bbc0f;
+            font-size: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            user-select: none;
+        }
+        
+        #up-btn { grid-area: up; }
+        #down-btn { grid-area: down; }
+        #left-btn { grid-area: left; }
+        #right-btn { grid-area: right; }
+        
+        #action-btn {
+            position: absolute;
+            bottom: 70px;
+            right: 10px;
+            width: 70px;
+            height: 70px;
+            background-color: rgba(48, 98, 48, 0.7);
+            border: 2px solid #0f380f;
+            color: #9bbc0f;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            z-index: 40;
+            user-select: none;
+            text-align: center;
+            padding: 5px;
+        }
+        
+        .npc {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+        }
+        
+        #npc1 { background-color: #ff0000; }
+        #npc2 { background-color: #0000ff; }
+        #npc3 { background-color: #ffff00; }
+        
+        .hidden-item {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: transparent;
+        }
+        
+        #player {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background-color: #306230;
             z-index: 10;
         }
         
-        .game-info {
-            flex: 1;
-            min-width: 300px;
-            background-color: rgba(0, 0, 0, 0.5);
-            border-radius: 15px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+        #hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(224, 248, 208, 0.8);
+            padding: 8px 12px;
+            border: 2px solid #0f380f;
+            font-size: clamp(12px, 3vw, 14px);
+            z-index: 20;
+            border-radius: 4px;
         }
         
-        .stats {
-            display: flex;
-            justify-content: space-between;
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-        }
-        
-        .question-box {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 20px;
-            border-radius: 10px;
-            min-height: 150px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        
-        .options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-        
-        .option {
-            background-color: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .option:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-        }
-        
-        .option.correct {
-            background-color: rgba(76, 175, 80, 0.5);
-        }
-        
-        .option.incorrect {
-            background-color: rgba(244, 67, 54, 0.5);
-        }
-        
-        .progress-bar {
-            width: 100%;
-            height: 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        .progress {
-            height: 100%;
-            background: linear-gradient(to right, #4fc3f7, #2196f3);
-            width: 0%;
-            transition: width 0.5s ease;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        @media (max-width: 768px) {
-            .game-area {
-                flex-direction: column;
+        @media (max-width: 480px) {
+            #game-container {
+                height: 60vh;
+                min-height: 350px;
             }
             
-            .world-map {
-                height: 300px;
+            .control-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
             }
             
-            h1 {
-                font-size: 2rem;
-            }
-            
-            h2 {
-                font-size: 1.5rem;
+            #action-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 12px;
+                bottom: 60px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Başlangıç Ekranı -->
-        <div class="screen" id="start-screen">
-            <h1>Pokemon Matematik Macerası</h1>
-            <div class="pokemon">
-                <div class="eye"></div>
-                <div class="eye"></div>
-                <div class="mouth"></div>
-            </div>
-            <p>Pokemon dünyasında bir maceraya hazır mısın? Bu açık dünyada gezerken 10 matematik sorusu çözmen gerekiyor. Tüm soruları doğru cevapla ve macerayı tamamla!</p>
-            <button id="start-btn">OYUNA BAŞLA</button>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <div id="start-screen" class="screen">
+            <h1>PİXEL MATEMATİK MACERASI</h1>
+            <p>Rafet adlı karakterimizle dünyayı keşfet!</p>
+            <p>10 gizli rasyonel sayı işlemini bul ve çöz!</p>
+            <p>NPC'lerden ipuçları almak için tam sayı işlemleri yap!</p>
+            <button id="start-button" class="button">OYNA</button>
         </div>
         
-        <!-- Oyun Ekranı -->
-        <div class="screen" id="game-screen">
-            <h2>Matematik Macerası</h2>
-            <div class="game-area">
-                <div class="world-map" id="world-map">
-                    <!-- Harita hücreleri JavaScript ile oluşturulacak -->
-                </div>
-                <div class="game-info">
-                    <div class="stats">
-                        <div>Seviye: <span id="level">1</span>/10</div>
-                        <div>Puan: <span id="score">0</span></div>
-                        <div>Can: <span id="health">100</span>%</div>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress" id="progress"></div>
-                    </div>
-                    <div class="question-box">
-                        <h3 id="question-text">Bir soru seçmek için haritada bir hücreye tıklayın!</h3>
-                        <div class="options hidden" id="options-container">
-                            <!-- Seçenekler JavaScript ile oluşturulacak -->
-                        </div>
-                    </div>
-                    <button id="next-btn" class="hidden">Sonraki Soru</button>
-                </div>
-            </div>
+        <div id="end-screen" class="screen" style="display: none;">
+            <h1>TEBRİKLER!</h1>
+            <p>10 gizli rasyonel sayı işlemini başarıyla tamamladın!</p>
+            <p>Matematik becerilerin harika!</p>
+            <button id="restart-button" class="button">YENİDEN OYNA</button>
         </div>
         
-        <!-- Bitiş Ekranı -->
-        <div class="screen" id="end-screen">
-            <h1>Tebrikler!</h1>
-            <div class="pokemon">
-                <div class="eye"></div>
-                <div class="eye"></div>
-                <div class="mouth"></div>
-            </div>
-            <h2>Oyunu Tamamladın!</h2>
-            <p>Toplam Puan: <span id="final-score">0</span></p>
-            <p>Doğru Cevaplar: <span id="correct-answers">0</span>/10</p>
-            <button id="restart-btn">TEKRAR OYNA</button>
+        <div id="dialogue-box">
+            <p id="dialogue-text"></p>
+            <button id="continue-button" class="button">Devam</button>
         </div>
+        
+        <div id="math-problem">
+            <h3 id="problem-text"></h3>
+            <input type="text" id="answer-input" placeholder="Cevap">
+            <button id="submit-answer" class="button">Cevapla</button>
+            <p id="result-message"></p>
+        </div>
+        
+        <div id="hud">
+            Bulunan İşlemler: <span id="found-count">0</span>/10
+        </div>
+        
+        <!-- Mobil kontroller -->
+        <div id="controls">
+            <div id="up-btn" class="control-btn">↑</div>
+            <div id="down-btn" class="control-btn">↓</div>
+            <div id="left-btn" class="control-btn">←</div>
+            <div id="right-btn" class="control-btn">→</div>
+        </div>
+        
+        <div id="action-btn">ETKİLEŞİM<br>(ENTER)</div>
     </div>
 
     <script>
-        // Oyun verileri
-        const gameData = {
-            currentLevel: 1,
-            score: 0,
-            health: 100,
-            completedQuestions: 0,
-            totalQuestions: 10,
-            currentQuestion: null,
-            playerPosition: 0,
-            questions: [
-                {
-                    question: "15 + 27 işleminin sonucu kaçtır?",
-                    options: ["40", "42", "45", "38"],
-                    correct: 1
-                },
-                {
-                    question: "72 ÷ 8 işleminin sonucu kaçtır?",
-                    options: ["7", "8", "9", "10"],
-                    correct: 2
-                },
-                {
-                    question: "Bir dikdörtgenin uzun kenarı 12 cm, kısa kenarı 8 cm ise çevresi kaç cm'dir?",
-                    options: ["36", "40", "44", "48"],
-                    correct: 1
-                },
-                {
-                    question: "3² + 4² işleminin sonucu kaçtır?",
-                    options: ["12", "16", "20", "25"],
-                    correct: 3
-                },
-                {
-                    question: "0.5 × 0.4 işleminin sonucu kaçtır?",
-                    options: ["0.2", "0.02", "2", "0.002"],
-                    correct: 0
-                },
-                {
-                    question: "Bir sayının 3 katının 5 eksiği 19 ise bu sayı kaçtır?",
-                    options: ["6", "7", "8", "9"],
-                    correct: 2
-                },
-                {
-                    question: "120'nin %25'i kaçtır?",
-                    options: ["25", "30", "35", "40"],
-                    correct: 1
-                },
-                {
-                    question: "2/3 + 1/6 işleminin sonucu kaçtır?",
-                    options: ["1/2", "2/3", "5/6", "1"],
-                    correct: 2
-                },
-                {
-                    question: "Bir karenin alanı 64 cm² ise çevresi kaç cm'dir?",
-                    options: ["16", "24", "32", "48"],
-                    correct: 2
-                },
-                {
-                    question: "5! (5 faktöriyel) işleminin sonucu kaçtır?",
-                    options: ["60", "100", "120", "150"],
-                    correct: 2
-                }
-            ]
+        // Oyun durumu
+        const gameState = {
+            currentScreen: 'start',
+            player: {
+                x: 320,
+                y: 240,
+                speed: 3
+            },
+            npcs: [
+                { id: 1, x: 200, y: 150, dialogue: "Merhaba! İlk ipucu için şu işlemi çöz: (-15) + 8 = ?", mathProblem: "-15 + 8", answer: "-7" },
+                { id: 2, x: 450, y: 300, dialogue: "Selam! İkinci ipucu için: 24 ÷ (-6) = ?", mathProblem: "24 ÷ (-6)", answer: "-4" },
+                { id: 3, x: 150, y: 400, dialogue: "Hey! Son ipucu için: (-5) × (-4) = ?", mathProblem: "(-5) × (-4)", answer: "20" }
+            ],
+            hiddenProblems: [
+                { id: 1, x: 100, y: 100, problem: "3/4 + 1/2", answer: "5/4" },
+                { id: 2, x: 500, y: 100, problem: "5/6 - 1/3", answer: "1/2" },
+                { id: 3, x: 100, y: 350, problem: "2/3 × 3/5", answer: "2/5" },
+                { id: 4, x: 500, y: 350, problem: "3/4 ÷ 2/3", answer: "9/8" },
+                { id: 5, x: 300, y: 80, problem: "1/5 + 3/10", answer: "1/2" },
+                { id: 6, x: 300, y: 400, problem: "7/8 - 1/4", answer: "5/8" },
+                { id: 7, x: 200, y: 250, problem: "2/7 × 14/5", answer: "4/5" },
+                { id: 8, x: 400, y: 250, problem: "5/6 ÷ 10/3", answer: "1/4" },
+                { id: 9, x: 350, y: 150, problem: "4/9 + 2/3", answer: "10/9" },
+                { id: 10, x: 250, y: 300, problem: "11/12 - 5/6", answer: "1/12" }
+            ],
+            foundProblems: [],
+            currentDialogue: null,
+            currentMathProblem: null,
+            keys: {},
+            activeTouch: null,
+            canvasScale: 1
         };
 
         // DOM elementleri
+        const gameContainer = document.getElementById('game-container');
+        const gameCanvas = document.getElementById('game-canvas');
+        const ctx = gameCanvas.getContext('2d');
         const startScreen = document.getElementById('start-screen');
-        const gameScreen = document.getElementById('game-screen');
         const endScreen = document.getElementById('end-screen');
-        const startBtn = document.getElementById('start-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const restartBtn = document.getElementById('restart-btn');
-        const worldMap = document.getElementById('world-map');
-        const questionText = document.getElementById('question-text');
-        const optionsContainer = document.getElementById('options-container');
-        const levelElement = document.getElementById('level');
-        const scoreElement = document.getElementById('score');
-        const healthElement = document.getElementById('health');
-        const progressElement = document.getElementById('progress');
-        const finalScoreElement = document.getElementById('final-score');
-        const correctAnswersElement = document.getElementById('correct-answers');
+        const startButton = document.getElementById('start-button');
+        const restartButton = document.getElementById('restart-button');
+        const dialogueBox = document.getElementById('dialogue-box');
+        const dialogueText = document.getElementById('dialogue-text');
+        const continueButton = document.getElementById('continue-button');
+        const mathProblem = document.getElementById('math-problem');
+        const problemText = document.getElementById('problem-text');
+        const answerInput = document.getElementById('answer-input');
+        const submitAnswer = document.getElementById('submit-answer');
+        const resultMessage = document.getElementById('result-message');
+        const foundCount = document.getElementById('found-count');
+        
+        // Mobil kontroller
+        const upBtn = document.getElementById('up-btn');
+        const downBtn = document.getElementById('down-btn');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+        const actionBtn = document.getElementById('action-btn');
 
-        // Oyunu başlat
-        startBtn.addEventListener('click', startGame);
-        nextBtn.addEventListener('click', nextQuestion);
-        restartBtn.addEventListener('click', restartGame);
-
-        function startGame() {
-            startScreen.style.display = 'none';
-            gameScreen.style.display = 'block';
-            initializeGame();
+        // Canvas boyutunu ayarla
+        function setupCanvas() {
+            const containerWidth = gameContainer.clientWidth;
+            const containerHeight = gameContainer.clientHeight;
+            
+            gameCanvas.width = 640;
+            gameCanvas.height = 480;
+            
+            // Canvas ölçekleme
+            const scaleX = containerWidth / 640;
+            const scaleY = containerHeight / 480;
+            gameState.canvasScale = Math.min(scaleX, scaleY);
+            
+            gameCanvas.style.width = `${640 * gameState.canvasScale}px`;
+            gameCanvas.style.height = `${480 * gameState.canvasScale}px`;
         }
 
-        function initializeGame() {
-            // Haritayı oluştur
-            createMap();
+        // Oyun başlatma
+        function initGame() {
+            setupCanvas();
+            window.addEventListener('resize', setupCanvas);
             
-            // Oyun verilerini sıfırla
-            gameData.currentLevel = 1;
-            gameData.score = 0;
-            gameData.health = 100;
-            gameData.completedQuestions = 0;
-            gameData.playerPosition = 0;
-            
-            // UI'ı güncelle
-            updateUI();
-            
-            // İlk soruyu hazırla
-            prepareQuestion(0);
-        }
-
-        function createMap() {
-            worldMap.innerHTML = '';
-            
-            for (let i = 0; i < 25; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'map-cell';
-                cell.dataset.index = i;
-                
-                // Her 2.5 hücrede bir pokeball ekle (10 tane)
-                if (i % 2.5 === 0 && i < 25) {
-                    const pokeball = document.createElement('div');
-                    pokeball.className = 'pokeball';
-                    cell.appendChild(pokeball);
-                    cell.dataset.hasQuestion = 'true';
-                    cell.dataset.questionIndex = i / 2.5;
+            // Event listener'lar
+            startButton.addEventListener('click', startGame);
+            restartButton.addEventListener('click', restartGame);
+            continueButton.addEventListener('click', closeDialogue);
+            submitAnswer.addEventListener('click', checkAnswer);
+            answerInput.addEventListener('keyup', function(event) {
+                if (event.key === 'Enter') {
+                    checkAnswer();
                 }
+            });
+            
+            // Klavye kontrolleri
+            document.addEventListener('keydown', function(event) {
+                gameState.keys[event.key] = true;
                 
-                cell.addEventListener('click', () => selectCell(i));
-                worldMap.appendChild(cell);
-            }
+                // ESC tuşu ile menüye dön
+                if (event.key === 'Escape') {
+                    if (gameState.currentScreen === 'game') {
+                        if (dialogueBox.style.display === 'block') {
+                            closeDialogue();
+                        } else if (mathProblem.style.display === 'block') {
+                            mathProblem.style.display = 'none';
+                        }
+                    }
+                }
+            });
             
-            // Oyuncuyu ekle
-            const player = document.createElement('div');
-            player.className = 'player';
-            player.id = 'player';
-            worldMap.appendChild(player);
+            document.addEventListener('keyup', function(event) {
+                gameState.keys[event.key] = false;
+            });
             
-            // Oyuncuyu başlangıç konumuna yerleştir
-            updatePlayerPosition();
+            // Mobil kontroller
+            setupTouchControls();
+            
+            // Oyun döngüsünü başlat
+            gameLoop();
         }
 
-        function selectCell(index) {
-            const cell = document.querySelector(`.map-cell[data-index="${index}"]`);
+        // Mobil kontrolleri ayarla
+        function setupTouchControls() {
+            // Yön tuşları
+            const controlButtons = [upBtn, downBtn, leftBtn, rightBtn];
             
-            if (cell.dataset.hasQuestion === 'true' && !cell.classList.contains('completed')) {
-                // Tüm hücreleri sıfırla
-                document.querySelectorAll('.map-cell').forEach(c => {
-                    c.classList.remove('active');
+            controlButtons.forEach(btn => {
+                btn.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    const direction = this.id.replace('-btn', '');
+                    gameState.keys[`Arrow${direction.charAt(0).toUpperCase() + direction.slice(1)}`] = true;
                 });
                 
-                // Seçilen hücreyi aktif yap
-                cell.classList.add('active');
+                btn.addEventListener('touchend', function(e) {
+                    e.preventDefault();
+                    const direction = this.id.replace('-btn', '');
+                    gameState.keys[`Arrow${direction.charAt(0).toUpperCase() + direction.slice(1)}`] = false;
+                });
                 
-                // Oyuncuyu bu hücreye taşı
-                gameData.playerPosition = index;
-                updatePlayerPosition();
+                // Masaüstü için mouse desteği
+                btn.addEventListener('mousedown', function(e) {
+                    e.preventDefault();
+                    const direction = this.id.replace('-btn', '');
+                    gameState.keys[`Arrow${direction.charAt(0).toUpperCase() + direction.slice(1)}`] = true;
+                });
                 
-                // Soruyu göster
-                const questionIndex = parseInt(cell.dataset.questionIndex);
-                prepareQuestion(questionIndex);
-            }
-        }
-
-        function updatePlayerPosition() {
-            const player = document.getElementById('player');
-            const cell = document.querySelector(`.map-cell[data-index="${gameData.playerPosition}"]`);
-            const rect = cell.getBoundingClientRect();
-            const mapRect = worldMap.getBoundingClientRect();
-            
-            player.style.left = `${rect.left - mapRect.left + rect.width / 2 - 15}px`;
-            player.style.top = `${rect.top - mapRect.top + rect.height / 2 - 15}px`;
-        }
-
-        function prepareQuestion(index) {
-            if (index >= gameData.questions.length) return;
-            
-            gameData.currentQuestion = gameData.questions[index];
-            questionText.textContent = gameData.currentQuestion.question;
-            
-            // Seçenekleri oluştur
-            optionsContainer.innerHTML = '';
-            optionsContainer.classList.remove('hidden');
-            
-            gameData.currentQuestion.options.forEach((option, i) => {
-                const optionElement = document.createElement('div');
-                optionElement.className = 'option';
-                optionElement.textContent = option;
-                optionElement.dataset.index = i;
-                optionElement.addEventListener('click', () => selectAnswer(i));
-                optionsContainer.appendChild(optionElement);
+                btn.addEventListener('mouseup', function(e) {
+                    e.preventDefault();
+                    const direction = this.id.replace('-btn', '');
+                    gameState.keys[`Arrow${direction.charAt(0).toUpperCase() + direction.slice(1)}`] = false;
+                });
+                
+                btn.addEventListener('mouseleave', function(e) {
+                    e.preventDefault();
+                    const direction = this.id.replace('-btn', '');
+                    gameState.keys[`Arrow${direction.charAt(0).toUpperCase() + direction.slice(1)}`] = false;
+                });
             });
             
-            nextBtn.classList.add('hidden');
-        }
-
-        function selectAnswer(selectedIndex) {
-            const options = document.querySelectorAll('.option');
-            const correctIndex = gameData.currentQuestion.correct;
-            
-            // Tüm seçenekleri devre dışı bırak
-            options.forEach(option => {
-                option.style.pointerEvents = 'none';
+            // Etkileşim butonu
+            actionBtn.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                checkInteractions();
             });
             
-            // Seçilen cevabı işaretle
-            if (selectedIndex === correctIndex) {
-                options[selectedIndex].classList.add('correct');
-                gameData.score += 10;
-                gameData.completedQuestions++;
-                
-                // Mevcut hücreyi tamamlanmış olarak işaretle
-                const activeCell = document.querySelector('.map-cell.active');
-                activeCell.classList.add('completed');
-                activeCell.classList.remove('active');
-            } else {
-                options[selectedIndex].classList.add('incorrect');
-                options[correctIndex].classList.add('correct');
-                gameData.health -= 10;
-            }
-            
-            // UI'ı güncelle
-            updateUI();
-            
-            // Sonraki soru butonunu göster
-            nextBtn.classList.remove('hidden');
-            
-            // Tüm sorular tamamlandı mı kontrol et
-            if (gameData.completedQuestions === gameData.totalQuestions) {
-                setTimeout(endGame, 1500);
-            }
-        }
-
-        function nextQuestion() {
-            // Aktif hücreyi temizle
-            document.querySelectorAll('.map-cell').forEach(c => {
-                c.classList.remove('active');
+            actionBtn.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                checkInteractions();
             });
-            
-            // Soru bilgilerini sıfırla
-            questionText.textContent = "Bir soru seçmek için haritada bir hücreye tıklayın!";
-            optionsContainer.classList.add('hidden');
-            nextBtn.classList.add('hidden');
-            
-            // Seviyeyi güncelle
-            gameData.currentLevel = gameData.completedQuestions + 1;
-            updateUI();
         }
 
-        function updateUI() {
-            levelElement.textContent = gameData.currentLevel;
-            scoreElement.textContent = gameData.score;
-            healthElement.textContent = gameData.health;
-            progressElement.style.width = `${(gameData.completedQuestions / gameData.totalQuestions) * 100}%`;
+        // Oyunu başlat
+        function startGame() {
+            gameState.currentScreen = 'game';
+            startScreen.style.display = 'none';
+            drawGame();
         }
 
-        function endGame() {
-            gameScreen.style.display = 'none';
-            endScreen.style.display = 'block';
-            finalScoreElement.textContent = gameData.score;
-            correctAnswersElement.textContent = gameData.completedQuestions;
-        }
-
+        // Oyunu yeniden başlat
         function restartGame() {
+            gameState.foundProblems = [];
+            gameState.player.x = 320;
+            gameState.player.y = 240;
+            gameState.currentScreen = 'game';
             endScreen.style.display = 'none';
-            startScreen.style.display = 'block';
+            foundCount.textContent = '0';
+            drawGame();
         }
 
-        // Pencere boyutu değiştiğinde oyuncu konumunu güncelle
-        window.addEventListener('resize', updatePlayerPosition);
+        // Oyun döngüsü
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Oyun durumunu güncelle
+        function update() {
+            if (gameState.currentScreen !== 'game') return;
+            
+            // Oyuncu hareketi
+            let moved = false;
+            
+            if (gameState.keys['ArrowUp'] || gameState.keys['w'] || gameState.keys['W']) {
+                gameState.player.y -= gameState.player.speed;
+                moved = true;
+            }
+            if (gameState.keys['ArrowDown'] || gameState.keys['s'] || gameState.keys['S']) {
+                gameState.player.y += gameState.player.speed;
+                moved = true;
+            }
+            if (gameState.keys['ArrowLeft'] || gameState.keys['a'] || gameState.keys['A']) {
+                gameState.player.x -= gameState.player.speed;
+                moved = true;
+            }
+            if (gameState.keys['ArrowRight'] || gameState.keys['d'] || gameState.keys['D']) {
+                gameState.player.x += gameState.player.speed;
+                moved = true;
+            }
+            
+            // Sınır kontrolü
+            if (gameState.player.x < 0) gameState.player.x = 0;
+            if (gameState.player.x > 640 - 16) gameState.player.x = 640 - 16;
+            if (gameState.player.y < 0) gameState.player.y = 0;
+            if (gameState.player.y > 480 - 16) gameState.player.y = 480 - 16;
+        }
+
+        // Oyunu çiz
+        function draw() {
+            if (gameState.currentScreen !== 'game') return;
+            
+            ctx.clearRect(0, 0, 640, 480);
+            
+            // Arka plan çizimi (basit bir dünya)
+            ctx.fillStyle = '#9bbc0f';
+            ctx.fillRect(0, 0, 640, 480);
+            
+            // Ağaçlar ve çalılar
+            ctx.fillStyle = '#306230';
+            for (let i = 0; i < 20; i++) {
+                const x = (i * 30 + 50) % 600 + 20;
+                const y = (i * 25 + 30) % 400 + 20;
+                ctx.fillRect(x, y, 10, 10);
+            }
+            
+            // NPC'ler
+            gameState.npcs.forEach(npc => {
+                ctx.fillStyle = npc.id === 1 ? '#ff0000' : npc.id === 2 ? '#0000ff' : '#ffff00';
+                ctx.fillRect(npc.x, npc.y, 16, 16);
+                
+                // NPC etiketleri
+                ctx.fillStyle = '#0f380f';
+                ctx.font = '10px Courier New';
+                ctx.fillText(`NPC${npc.id}`, npc.x - 5, npc.y - 5);
+            });
+            
+            // Gizli problemler
+            gameState.hiddenProblems.forEach(problem => {
+                if (!gameState.foundProblems.includes(problem.id)) {
+                    ctx.fillStyle = '#8b0000';
+                    ctx.fillRect(problem.x, problem.y, 8, 8);
+                    
+                    // Problem etiketleri
+                    ctx.fillStyle = '#0f380f';
+                    ctx.font = '8px Courier New';
+                    ctx.fillText(`${problem.id}`, problem.x - 3, problem.y - 3);
+                }
+            });
+            
+            // Oyuncu
+            ctx.fillStyle = '#306230';
+            ctx.fillRect(gameState.player.x, gameState.player.y, 16, 16);
+            
+            // Oyuncu etiketi
+            ctx.fillStyle = '#0f380f';
+            ctx.font = '10px Courier New';
+            ctx.fillText('Rafet', gameState.player.x - 5, gameState.player.y - 5);
+        }
+
+        // Etkileşimleri kontrol et
+        function checkInteractions() {
+            if (gameState.currentScreen !== 'game') return;
+            if (dialogueBox.style.display === 'block' || mathProblem.style.display === 'block') return;
+            
+            // NPC etkileşimi
+            for (const npc of gameState.npcs) {
+                const distance = Math.sqrt(
+                    Math.pow(gameState.player.x - npc.x, 2) + 
+                    Math.pow(gameState.player.y - npc.y, 2)
+                );
+                
+                if (distance < 30) {
+                    showDialogue(npc.dialogue);
+                    gameState.currentMathProblem = {
+                        type: 'npc',
+                        problem: npc.mathProblem,
+                        answer: npc.answer
+                    };
+                    return;
+                }
+            }
+            
+            // Gizli problem etkileşimi
+            for (const problem of gameState.hiddenProblems) {
+                if (gameState.foundProblems.includes(problem.id)) continue;
+                
+                const distance = Math.sqrt(
+                    Math.pow(gameState.player.x - problem.x, 2) + 
+                    Math.pow(gameState.player.y - problem.y, 2)
+                );
+                
+                if (distance < 20) {
+                    showMathProblem(problem.problem, problem.answer, problem.id);
+                    return;
+                }
+            }
+            
+            // Son meydan okuma
+            if (gameState.foundProblems.length === 9) {
+                const finalProblems = [
+                    { problem: "15 + 7", answer: "22" },
+                    { problem: "9 × 6", answer: "54" },
+                    { problem: "48 ÷ 8", answer: "6" },
+                    { problem: "23 - 14", answer: "9" }
+                ];
+                
+                const randomProblem = finalProblems[Math.floor(Math.random() * finalProblems.length)];
+                showMathProblem(randomProblem.problem, randomProblem.answer, 'final');
+            }
+        }
+
+        // Diyalog kutusunu göster
+        function showDialogue(text) {
+            dialogueText.textContent = text;
+            dialogueBox.style.display = 'block';
+        }
+
+        // Diyalog kutusunu kapat
+        function closeDialogue() {
+            dialogueBox.style.display = 'none';
+            
+            if (gameState.currentMathProblem && gameState.currentMathProblem.type === 'npc') {
+                showMathProblem(
+                    gameState.currentMathProblem.problem,
+                    gameState.currentMathProblem.answer,
+                    'npc'
+                );
+            }
+            
+            gameState.currentMathProblem = null;
+        }
+
+        // Matematik problemi göster
+        function showMathProblem(problem, answer, id) {
+            problemText.textContent = problem;
+            answerInput.value = '';
+            resultMessage.textContent = '';
+            mathProblem.style.display = 'block';
+            answerInput.focus();
+            
+            gameState.currentMathProblem = {
+                problem: problem,
+                answer: answer,
+                id: id
+            };
+        }
+
+        // Cevabı kontrol et
+        function checkAnswer() {
+            const userAnswer = answerInput.value.trim();
+            const correctAnswer = gameState.currentMathProblem.answer;
+            
+            if (userAnswer === correctAnswer) {
+                resultMessage.textContent = 'Doğru!';
+                resultMessage.style.color = '#306230';
+                
+                if (gameState.currentMathProblem.id !== 'npc' && gameState.currentMathProblem.id !== 'final') {
+                    if (!gameState.foundProblems.includes(gameState.currentMathProblem.id)) {
+                        gameState.foundProblems.push(gameState.currentMathProblem.id);
+                        foundCount.textContent = gameState.foundProblems.length;
+                    }
+                    
+                    if (gameState.foundProblems.length === 10) {
+                        setTimeout(() => {
+                            mathProblem.style.display = 'none';
+                            endScreen.style.display = 'flex';
+                            gameState.currentScreen = 'end';
+                        }, 1000);
+                    }
+                }
+                
+                setTimeout(() => {
+                    mathProblem.style.display = 'none';
+                    gameState.currentMathProblem = null;
+                }, 1000);
+            } else {
+                resultMessage.textContent = 'Yanlış, tekrar deneyin!';
+                resultMessage.style.color = '#ff0000';
+            }
+        }
+
+        // Oyunu başlat
+        initGame();
     </script>
 </body>
 </html>
